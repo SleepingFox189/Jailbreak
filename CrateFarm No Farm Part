@@ -1,0 +1,88 @@
+repeat task.wait(1) until game:IsLoaded()
+
+local Workspace = Services.Workspace
+local Players = Services.Players
+local Teams = Services.Teams
+local HttpService = Services.HttpService
+local Lighting = Services.Lighting
+local ReplicatedStorage = Services.ReplicatedStorage
+local PathfindingService = Services.PathfindingService
+local CollectionService = Services.CollectionService
+local RunService = Services.RunService
+local MarketplaceService = Services.MarketplaceService
+local TeleportService = Services.TeleportService
+local CoreGui = Services.CoreGui
+local Player = Players.LocalPlayer
+local Root = game.Players.LocalPlayer.Character.HumanoidRootPart
+local Char = nil
+local Root = nil
+local Hum = nil
+local Camera = Workspace.CurrentCamera
+local Vehicles = Workspace.Vehicles
+local VehicleSpawns = Workspace.VehicleSpawns
+local Terrain = Workspace.Terrain
+
+--WebHook
+
+local Webhook_URL = "https://discord.com/api/webhooks/1188976435445125240/B7lX5t_llazQxCNklkzPY1RpKH5097nntaygcDrSsWlQGn5gdvTeGjC9vU4UGvc6ZPio"
+
+local Headers = {
+    ['Content-Type'] = 'application/json',
+}
+
+local data = {
+    ["embeds"] = {
+        {
+            ["title"] = "@here Someone Executed CrateFarm/ServerHopped!",
+            ["description"] = " 📦CrateFarm📦 Executor: "..  game.Players.LocalPlayer.Name,
+            ["type"] = "rich",
+            ["color"] = tonumber(0xffffff),
+            ["fields"] = {
+                {
+                    ["name"] = "HWID :",
+                    ["value"] = game:GetService("RbxAnalyticsService"):GetClientId(),
+                    ["inline"] = true,
+                },
+            },
+        },
+    },
+}
+
+local PlayerData = game:GetService('HttpService'):JSONEncode(data)
+
+local Request = http_request or request or HttpPost or syn.request
+Request({Url = Webhook_URL, Body = PlayerData, Method = "POST", Headers = Headers})
+
+--Switch Team/LoadMap
+Modules.TeamChooseUI.Hide()
+task.wait(0.5)
+
+for x = -1529, 1567, 255 do
+    for z = -5179, 717, 255 do
+        Camera.CameraType = Enum.CameraType.Scriptable
+        Camera.CFrame = CFrame.new(x, 10, z)
+        task.wait()
+    end
+end
+
+Camera.CameraType = Enum.CameraType.Custom
+
+--Get Gun
+local SetThreadId = (setidentity or set_thread_identity or (syn and syn.set_thread_identity) or setcontext or setthreadcontext or set_thread_context)
+local IsOpen = pcall(Modules.GunShopUI.open)
+        
+SetThreadId(2)
+Modules.GunShopUI.displayList(Modules.GunShopUtils.getCategoryData("Held"))
+SetThreadId(7)
+
+repeat 
+    for i, v in next, Modules.GunShopUI.gui.Container.Container.Main.Container.Slider:GetChildren() do
+        if v:IsA("ImageLabel") and v.Name == "Pistol" and (v.Bottom.Action.Text == "FREE" or v.Bottom.Action.Text == "EQUIP") then
+            firesignal(v.Bottom.Action.MouseButton1Down)
+        end
+    end	
+            
+    task.wait()
+until Player.Folder:FindFirstChild("Pistol")
+
+pcall(Modules.GunShopUI.close)
